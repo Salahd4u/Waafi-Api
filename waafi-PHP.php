@@ -1,11 +1,28 @@
 <?php
+/**
+ * WaafiPay HPP API PHP Integration By Jamal
+ * 
+ * Features in this file:
+ * - Handles purchase, withdraw/refund, and transaction info.
+ * - Loads credentials from environment variables.
+ * - Unified POST request helper using cURL.
+ * - Returns proper HTTP codes and JSON errors.
+ * - Fully commented for clarity.
+ */
+
 // Load environment variables
 $MERCHANT_UID = getenv('MERCHANT_UID');
-$STORE_ID = getenv('STORE_ID');
-$HPP_KEY = getenv('HPP_KEY');
-$BASE_URL = getenv('BASE_URL') ?: 'https://sandbox.waafipay.net/asm';
+$STORE_ID     = getenv('STORE_ID');
+$HPP_KEY      = getenv('HPP_KEY');
+$BASE_URL     = getenv('BASE_URL') ?: 'https://sandbox.waafipay.net/asm';
 
-// Helper function to send POST requests
+/**
+ * Helper function to send POST requests to WaafiPay
+ *
+ * @param string $url     API endpoint
+ * @param array  $payload JSON payload to send
+ * @return array          Response as associative array
+ */
 function sendRequest($url, $payload) {
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -26,12 +43,13 @@ function sendRequest($url, $payload) {
     return json_decode($response, true);
 }
 
-// Handle POST requests
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+// Only allow POST requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     $action = strtolower($data['action'] ?? '');
 
     switch ($action) {
+        // Purchase request
         case 'purchase':
             $payload = [
                 "schemaVersion" => "1.0",
@@ -58,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             echo json_encode(sendRequest($BASE_URL, $payload));
             break;
 
+        // Withdraw or refund request
         case 'withdraw':
         case 'refund':
             $payload = [
@@ -78,6 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             echo json_encode(sendRequest($BASE_URL, $payload));
             break;
 
+        // Get transaction info
         case 'info':
         case 'transaction-info':
             $payload = [
@@ -96,13 +116,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             echo json_encode(sendRequest($BASE_URL, $payload));
             break;
 
+        // Invalid action
         default:
             http_response_code(400);
-            echo json_encode(['error' => 'Invalid action. Use "purchase", "withdraw", or "info".']);
+            echo json_encode(['error' => 'Invalid action. Use "purchase", "withdraw", "refund", or "info".']);
             break;
     }
 
 } else {
+    // Method not allowed
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed. Use POST.']);
 }
