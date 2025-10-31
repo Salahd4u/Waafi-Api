@@ -7,6 +7,7 @@ A FastAPI backend that integrates with WaafiPay's Hosted Payment Page (HPP) serv
 - ✅ **Purchase** (HPP_PURCHASE) - Initiate payment transactions
 - ✅ **Refund/Withdraw** (HPP_REFUNDPURCHASE) - Process refunds or withdrawals
 - ✅ **Transaction Info** (HPP_GETTRANINFO) - Retrieve transaction details
+- ✅ **Hosted Payment Page Url** https://docs.waafipay.com/hpp-api
 
 ## Setup
 
